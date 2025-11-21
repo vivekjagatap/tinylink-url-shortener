@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TinyLink - URL Shortener</title>
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+  <div class="max-w-xl mx-auto mt-20 bg-white p-8 rounded-xl shadow-lg">
+    <h1 class="text-3xl font-bold text-center mb-6">🔗 TinyLink</h1>
+
+    <input 
+      id="longUrl"
+      type="text"
+      placeholder="Enter long URL"
+      class="w-full border p-3 rounded mb-4"
+    />
+
+    <button 
+      onclick="shortenUrl()"
+      class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700">
+      Shorten URL
+    </button>
+
+    <div id="result" class="mt-6 hidden">
+      <p class="font-semibold">Short URL:</p>
+      <div class="flex items-center gap-3 mt-2">
+        <a id="shortUrl" href="#" target="_blank" class="text-blue-600 underline"></a>
+        <button onclick="copyUrl()" class="bg-gray-200 px-3 py-1 rounded">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function shortenUrl() {
+      const longUrl = document.getElementById("longUrl").value;
+
+      if (!longUrl.trim()) {
+        alert("Please enter a URL.");
+        return;
+      }
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/shorten", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ longUrl })
+        });
+
+        const data = await res.json();
+
+        if (!data.shortUrl) {
+          alert("Error: " + (data.error || "Something went wrong"));
+          return;
+        }
+
+        const shortUrlElem = document.getElementById("shortUrl");
+        shortUrlElem.href = data.shortUrl;
+        shortUrlElem.textContent = data.shortUrl;
+
+        document.getElementById("result").classList.remove("hidden");
+
+      } catch (error) {
+        console.log(error);
+        alert("Backend not reachable!");
+      }
+    }
+
+    function copyUrl() {
+      const url = document.getElementById("shortUrl").textContent;
+      navigator.clipboard.writeText(url);
+      alert("Copied!");
+    }
+  </script>
+
+</body>
+</html>
