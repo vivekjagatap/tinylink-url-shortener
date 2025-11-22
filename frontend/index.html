@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta-name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TinyLink - URL Shortener</title>
 
   <!-- Tailwind CDN -->
@@ -36,6 +36,8 @@
   </div>
 
   <script>
+    const BACKEND_URL = "https://tinylink-url-shortener-1.onrender.com";
+
     async function shortenUrl() {
       const longUrl = document.getElementById("longUrl").value;
 
@@ -45,11 +47,15 @@
       }
 
       try {
-        const res = await fetch("http://127.0.0.1:5000/shorten", {
+        const res = await fetch(`${BACKEND_URL}/shorten`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ longUrl })
         });
+
+        if (!res.ok) {
+          throw new Error("Server error");
+        }
 
         const data = await res.json();
 
@@ -65,7 +71,7 @@
         document.getElementById("result").classList.remove("hidden");
 
       } catch (error) {
-        console.log(error);
+        console.error(error);
         alert("Backend not reachable!");
       }
     }
